@@ -9,12 +9,26 @@ function save(){
     inputEl.value = ""
 }
 
-function render(word){
+function reset(){
+    parent.innerHTML = "";
+}
 
+
+
+function render(word) {
     const child = document.createElement('div');
-
-    child.className='childClass';
-    child.textContent += word;
+    child.className = 'childClass';
+    child.textContent = word;
     parent.appendChild(child);
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+    document.addEventListener("click", function (e) {
+        if (e.target.classList.contains("childClass")) {
+            e.target.style.background = "red";
+        }
+
+    });
+});
+
 

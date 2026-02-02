@@ -31,7 +31,6 @@ h1 {
 
 /* Buttons */
 button {
-    background: #007bff;
     color: #fff;
     width: auto;
     margin: auto;
@@ -39,6 +38,15 @@ button {
     border-radius: 4px;
     padding: 5px;
     cursor: pointer;
+    padding: 5px 10px;
+}
+
+#save-btn{
+    background: #007bff;
+}
+
+#reset-btn{
+    background: rgb(202, 13, 13);
 }
 
 button:hover {
@@ -53,15 +61,24 @@ button:hover {
 
 .childClass{
     border: 1px solid black;
-    padding: 5px 5px 30px 5px;;
     text-align: center;
+    display: flex;
     justify-content: center;
     align-items: center;
+    border-radius: 10px;
+    height: 100px;
+    width: 100px;
+    cursor: pointer;
 }
 
 #container{
     margin-top: 50px;
     display: grid;
-    grid-template-columns: auto auto auto;
+    grid-template-columns: auto auto auto auto;
     gap: 50px;
+}
+
+#buttons{
+    display: inline-block;
+    margin: auto;
 }
