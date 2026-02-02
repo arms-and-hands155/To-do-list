@@ -67,8 +67,10 @@ button:hover {
     align-items: center;
     border-radius: 10px;
     height: 100px;
-    width: 100px;
+
+    position: relative;
     cursor: pointer;
+
 }
 
 #container{
@@ -81,4 +83,32 @@ button:hover {
 #buttons{
     display: inline-block;
     margin: auto;
+}
+
+.shake-effect {
+    animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+    animation-iteration-count: 1; /* runs only once */
+}
+
+@keyframes shake {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    10%, 30%, 50%, 70%, 90% { transform: translate(-5px, 0) rotate(-1deg); }
+    20%, 40%, 60%, 80% { transform: translate(5px, 0) rotate(1deg); }
+}
+
+img{
+    position: absolute;
+    cursor: pointer;
+    width: 18px;
+    height: 18px;
+    top: 6px;
+    position: absolute;
+}
+
+.trashClass{
+    right: 6px;
+}
+
+.editClass{
+    right: 30px;
 }
