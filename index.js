@@ -25,22 +25,27 @@ inputEl.addEventListener("keydown", function(event){
 })
 
 function save(){
-    let newActivity = {
-        text: inputEl.value,
-        status: null
-    };
-    myLeads.push(newActivity);
-    localStorage.setItem("myLeads", JSON.stringify(myLeads))
+    
 
     if(inputEl.value != ""){
+        let newActivity = {
+            text: inputEl.value,
+            status: null}
+
+        myLeads.push(newActivity);
+        localStorage.setItem("myLeads", JSON.stringify(myLeads))
         render(inputEl.value, myLeads.length -1)
     }
     else{
+        document.getElementById("error-msg").style.display = "block";
         document.body.classList.add('shake-effect');
 
         setTimeout(function() {
             document.body.classList.remove('shake-effect');
         }, 500); 
+        setTimeout(function() {
+            document.getElementById("error-msg").style.display = "none";
+        }, 750); 
     }
     inputEl.value = ""
 }
