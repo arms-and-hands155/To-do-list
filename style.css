@@ -19,7 +19,7 @@ body {
     display: flex;
     flex-direction: column;
     padding: 20px 80px 0 80px;
-    gap: 5px;
+    /* gap: 5px; */
 }
 /* Heading */
 h1 {
@@ -60,16 +60,17 @@ button:hover {
 }
 
 .childClass{
-    border: 1px solid black;
+    border: 0px solid black;
     text-align: center;
     display: flex;
     justify-content: center;
     align-items: center;
     border-radius: 10px;
     height: 100px;
-
+    background-color: #DDD9DB;
     position: relative;
     cursor: pointer;
+    box-shadow: -4px 4px rgb(0, 0, 0);
 
 }
 
@@ -77,7 +78,7 @@ button:hover {
     margin-top: 50px;
     display: grid;
     grid-template-columns: auto auto auto auto;
-    gap: 50px;
+    gap: 10px;
 }
 
 #buttons{
