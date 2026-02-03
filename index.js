@@ -49,24 +49,46 @@ function render(word) {
 }
 
 document.addEventListener("click", function (e) {
+    const pick = e.target;
 
-    if (e.target.classList.contains("trashClass")){ 
-        const p_Node = e.target.parentNode; 
+    if (pick.classList.contains("trashClass")){ 
+        const p_Node = pick.parentNode; 
         p_Node.remove();
     }
 });
 const customMenu = document.getElementById('customMenu');
-
+//setting up custom menu when childClass is right clicked
 document.addEventListener("contextmenu", function(e){
-    if (e.target.classList.contains("childClass")) {
+    const pick = e.target;
+    if (pick.classList.contains("childClass")) {
         e.preventDefault();
         customMenu.style.top = `${e.clientY}px`;
         customMenu.style.left = `${e.clientX}px`;
         customMenu.style.display = 'block';
     }
     document.addEventListener('click', (e) => {
-        if (!customMenu.contains(e.target)) {
+        if (!customMenu.contains(pick)) {
             customMenu.style.display = 'none';
-        }
+            }
+        
+        });
+
+//changing colors depending on answer
+    const menuOptions = customMenu.querySelectorAll('li');
+    menuOptions.forEach(option => {
+
+        const options = option.textContent.trim();
+        option.addEventListener('click', () => {
+            console.log(`Option "${options}" selected.`);
+            if(options === "Done"){
+                pick.style.background = "#77DD77";
+            }
+            else if(options === "In Progress"){
+                pick.style.background = "#FFFACD";
+            }
+            else if(options === "Not Started"){
+                pick.style.background = "#FF6961";
+            }
+        });
     });
 })
