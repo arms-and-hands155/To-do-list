@@ -84,6 +84,7 @@ button:hover {
 #buttons{
     display: inline-block;
     margin: auto;
+    margin-top: 10px;
 }
 
 .shake-effect {

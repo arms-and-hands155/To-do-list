@@ -5,7 +5,7 @@ const saver = document.getElementById("save-btn");
 
 const leadsFromLocalStorage = JSON.parse(localStorage.getItem("myLeads"));
 
-if(leadsFromLocalStorage){
+if(leadsFromLocalStorage){ //Rendering the data and display from before the refresh
     myLeads = leadsFromLocalStorage;
     for (let i = 0; i < myLeads.length; i++) {
         render(myLeads[i].text, i);
@@ -71,18 +71,46 @@ function render(word, index) {
     child.appendChild(edit);
 }
 
-document.addEventListener("click", function (e) {
+document.addEventListener("click", function (e) { //Event listener for childClass
     const pick = e.target;
 
-    if (pick.classList.contains("trashClass")){ 
+    if (pick.classList.contains("trashClass")){ //Deletes specific activities
         const p_Node = pick.parentNode; 
         p_Node.remove();
     }
-    if (pick.classList.contains("editClass")){ 
-        e.contentEditable = true;
+    if (pick.classList.contains("editClass")){ //Allows to edit text
+            document.querySelectorAll(".childClass").forEach(child => {
+                child.addEventListener("click", function(event){
+                    const clicked = event.currentTarget;
+                    const i = clicked.dataset.index;
+                    clicked.contentEditable = true;
+                    clicked.classList.add('editable');
+                    clicked.focus();
+
+                clicked.addEventListener("keydown", function(event){
+                    if(event.key == "Enter"){
+                        event.preventDefault();
+                        clicked.contentEditable = false;
+                        clicked.classList.remove('editable');
+                        clicked.blur();
+                    }
+                },{ once: true });
+
+                clicked.addEventListener("blur", function () {
+                    clicked.contentEditable = "false";
+                    clicked.classList.remove("editable");
+            
+                    const newText = clicked.textContent.trim();
+                    myLeads[i].text = newText;
+                    localStorage.setItem("myLeads", JSON.stringify(myLeads));
+                  }, { once: true });
+
+                })
+                
+            })
     }
-    
-});
+})
+
 
 const customMenu = document.getElementById('customMenu');
 let current = null;
@@ -131,4 +159,6 @@ menuOptions.forEach(option => {
         customMenu.style.display = 'none'; // hide menu after selection
     });
 });
+
+
 
