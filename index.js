@@ -5,12 +5,14 @@ const saver = document.getElementById("save-btn");
 const date = document.getElementById("date-el")
 const inputs = document.getElementById("inputs");
 
-
+const remain = document.getElementById("remaining");
 function rerender(){
     const saved = JSON.parse(localStorage.getItem("myLeads")) || [];
     myLeads = saved;
 
     myLeads.sort((a, b) => endOfDayLocal(a.due) - endOfDayLocal(b.due));
+
+    remain.textContent = myLeads.length + " Tasks left";
     parent.innerHTML = "";
 
     
@@ -42,7 +44,6 @@ function save(){
 
         myLeads.push(newActivity);
         localStorage.setItem("myLeads", JSON.stringify(myLeads))
-        localStorage.setItem("myLeads", JSON.stringify(myLeads));
         rerender();
         inputEl.value = ""
     }
@@ -63,6 +64,7 @@ function reset(){
     parent.innerHTML = "";
     myLeads = []
     localStorage.clear();
+    remain.textContent = 0 + " Tasks left";
 }
 //displays the activity entered
 function render(word, date, index) {
@@ -127,6 +129,7 @@ document.addEventListener("click", function (e) { //Event listener for childClas
         const index = p_Node.dataset.index;
         myLeads.splice(index,1);
         localStorage.setItem("myLeads", JSON.stringify(myLeads));
+        remain.textContent = Number(myLeads.length) + " Tasks left";
 
     }
     if (pick.classList.contains("editClass")) {

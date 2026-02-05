@@ -5,21 +5,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>To-Do List</title>
     <link rel="stylesheet" href ="style.css">
+
+
+    
 </head>
 <body>
-    <h1>Welcome to the To-Do List</h1>
     <p id="error-msg-act" class="error-message">Please enter a valid activity</p> 
-    <div id = "new">
-        <div id = "inputs">
-            <input type ="text" id="input-el" placeholder = "Enter an activity" name="inputField">
-            <input type ="date" id="date-el" name="dateField">
+    <div id = "tasks">
+
+        <div id = "new">
+            <div id = "text">
+            <h1>My Tasks</h1>
+            <h4 id ="remaining"></h4>
         </div>
-        <div id = "buttons">
-            <button id="save-btn" onclick = "save()">Add Activity</button>
-            <button id="reset-btn" onclick = "reset()">Reset</button>
+
+            <div id = "inputs">
+                <input type ="text" id="input-el" placeholder = "Enter an activity" name="inputField">
+                <input type ="date" id="date-el" name="dateField">
+            </div>
+
+            <div id = "buttons">
+                <button id="save-btn" onclick = "save()">Add Activity</button>
+                <button id="reset-btn" onclick = "reset()">Reset</button>
+            </div>
+
         </div>
+
+    <div id="container"></div> <!--Contains Added tasks-->
+
     </div>
-    <div id="container"></div>
 
     <div id="customMenu" class="menu" style="display: none;">
         <ul>
@@ -28,7 +42,7 @@
             <li>Not Started</li>
         </ul>
     </div>
-    
+    <script src="index.js"></script>
 </body>
-<script src="index.js"></script>
+
 </html>
