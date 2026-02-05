@@ -34,7 +34,7 @@ inputs.addEventListener("keydown", function(event){
 })
 
 function save(){
-    if(inputEl.value != "" && date.value != ""){
+    if(inputEl.value != ""){
         let newActivity = {
             text: inputEl.value,
             due: date.value,
@@ -45,29 +45,6 @@ function save(){
         localStorage.setItem("myLeads", JSON.stringify(myLeads));
         rerender();
         inputEl.value = ""
-        date.value = ""
-    }
-    else if(inputEl.value == "" && date.value == ""){
-        document.getElementById("error-msg").style.display = "block";
-        document.body.classList.add('shake-effect');
-
-        setTimeout(function() {
-            document.body.classList.remove('shake-effect');
-        }, 500); 
-        setTimeout(function() {
-            document.getElementById("error-msg").style.display = "none";
-        }, 750); 
-    }
-    else if(date.value == ""){
-        document.getElementById("error-msg-dat").style.display = "block";
-        document.body.classList.add('shake-effect');
-
-        setTimeout(function() {
-            document.body.classList.remove('shake-effect');
-        }, 500); 
-        setTimeout(function() {
-            document.getElementById("error-msg-dat").style.display = "none";
-        }, 750); 
     }
     else{
         document.getElementById("error-msg-act").style.display = "block";
@@ -184,15 +161,21 @@ document.addEventListener("click", function (e) { //Event listener for childClas
         const i = clicked.dataset.index;
         const dateText = clicked.querySelector(".dueValue");
 
+        if(clicked._countdownId){
+            clearInterval(clicked._countdownId);
+            clicked._countdownId = null;
+        }
+        dateText.textContent = myLeads[i].due;
+
         dateText.contentEditable = true;
         dateText.classList.add("editable");
         dateText.focus();
-    
+        
         dateText.addEventListener("keydown", function(event){
             if(event.key === "Enter"){
                 dateText.contentEditable = false;
                 event.preventDefault();
-                clicked.blur(); // triggers blur listener below
+                dateText.blur(); // triggers blur listener below
             }
         });
     
@@ -203,6 +186,8 @@ document.addEventListener("click", function (e) { //Event listener for childClas
             const newDate = dateText.textContent.trim();
             myLeads[i].due = newDate;
             localStorage.setItem("myLeads", JSON.stringify(myLeads));
+            startCountdownForCard(clicked, newDate);
+            rerender();
         }, { once: true });
     }
 })
@@ -212,9 +197,11 @@ let current = null;
 
 // Right-click on a childClass
 document.addEventListener("contextmenu", function(e){
-    const pick = e.target;
+    const pick = e.target.closest(".childClass");
+    if(!pick) return;
+
+    e.preventDefault();
     if (pick.classList.contains("childClass")) {
-        e.preventDefault();
         current = pick; // store the clicked element
         customMenu.style.top = `${e.clientY}px`;
         customMenu.style.left = `${e.clientX}px`;
@@ -299,3 +286,16 @@ function formatRemaining(ms) {
   
   rerender();
 
+function setInputDateToday(_id) {
+    const dateControl = document.querySelector(_id);
+    const today = new Date();
+    // Format the date to yyyy-mm-dd
+    const day = ("0" + today.getDate()).slice(-2);
+    const month = ("0" + (today.getMonth() + 1)).slice(-2);
+    const formattedDate = today.getFullYear() + "-" + month + "-" + day;
+    // Set the value
+    dateControl.value = formattedDate;
+}
+
+// Call the function when the page loads
+setInputDateToday("#date-el");
