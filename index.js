@@ -2,13 +2,16 @@ let myLeads =  []
 const parent = document.getElementById("container");
 const inputEl = document.getElementById("input-el");
 const saver = document.getElementById("save-btn");
+const date = document.getElementById("date-el")
+const inputs = document.getElementById("inputs");
 
 const leadsFromLocalStorage = JSON.parse(localStorage.getItem("myLeads"));
 
 if(leadsFromLocalStorage){ //Rendering the data and display from before the refresh
     myLeads = leadsFromLocalStorage;
     for (let i = 0; i < myLeads.length; i++) {
-        render(myLeads[i].text, i);
+
+        render(myLeads[i].text, myLeads[i].due, i);
         const divs = document.querySelectorAll(".childClass");
 
         if(myLeads[i].status === "Done"){divs[i].style.background = "#70DA25";}
@@ -17,7 +20,7 @@ if(leadsFromLocalStorage){ //Rendering the data and display from before the refr
       }      
 }
 
-inputEl.addEventListener("keydown", function(event){
+inputs.addEventListener("keydown", function(event){
     if(event.key == "Enter"){
         event.preventDefault();
         save();
@@ -25,18 +28,19 @@ inputEl.addEventListener("keydown", function(event){
 })
 
 function save(){
-    
-
-    if(inputEl.value != ""){
+    if(inputEl.value != "" && date.value != ""){
         let newActivity = {
             text: inputEl.value,
+            due: date.value,
             status: null}
 
         myLeads.push(newActivity);
         localStorage.setItem("myLeads", JSON.stringify(myLeads))
-        render(inputEl.value, myLeads.length -1)
+        render(inputEl.value, date.value, myLeads.length -1)
+        inputEl.value = ""
+        date.value = ""
     }
-    else{
+    else if(inputEl.value == "" && date.value == ""){
         document.getElementById("error-msg").style.display = "block";
         document.body.classList.add('shake-effect');
 
@@ -47,7 +51,28 @@ function save(){
             document.getElementById("error-msg").style.display = "none";
         }, 750); 
     }
-    inputEl.value = ""
+    else if(date.value == ""){
+        document.getElementById("error-msg-dat").style.display = "block";
+        document.body.classList.add('shake-effect');
+
+        setTimeout(function() {
+            document.body.classList.remove('shake-effect');
+        }, 500); 
+        setTimeout(function() {
+            document.getElementById("error-msg-dat").style.display = "none";
+        }, 750); 
+    }
+    else{
+        document.getElementById("error-msg-act").style.display = "block";
+        document.body.classList.add('shake-effect');
+
+        setTimeout(function() {
+            document.body.classList.remove('shake-effect');
+        }, 500); 
+        setTimeout(function() {
+            document.getElementById("error-msg-act").style.display = "none";
+        }, 750); 
+    }
 }
 
 function reset(){
@@ -56,24 +81,56 @@ function reset(){
     localStorage.clear();
 }
 //displays the activity entered
-function render(word, index) {
+function render(word, date, index) {
     const child = document.createElement('div');
+    //icons
+    const activityText = document.createElement('div');
+    const dateText = document.createElement('div');
+
+    const dueLabel = document.createElement("span");
+    const dueValue = document.createElement("span");
+
+
     const trash = document.createElement('img')
     const edit = document.createElement('img')
+    const calendar = document.createElement('img')
 
     trash.className = "trashClass";
     edit.className = "editClass";
+    calendar.className = "dateClass";
 
     trash.src = "trash.png";
     edit.src = "edit.png";
+    calendar.src = "calendar.png"
 
     child.className = 'childClass';
-    child.textContent = word;
+    dateText.className = 'dateText';
+    activityText.className = 'activityText';
+
+    activityText.textContent = word;
+
+    dueLabel.className = "dueLabel";
+    dueLabel.textContent = "Due: ";
+    dueLabel.contentEditable = "false";
+
+    dueValue.className = "dueValue";
+    dueValue.textContent = date;
+
+    dateText.appendChild(dueLabel);
+    dateText.appendChild(dueValue);
+
     child.dataset.index = index;
 
     parent.appendChild(child);
+
     child.appendChild(trash);
     child.appendChild(edit);
+    child.appendChild(calendar);
+
+    child.appendChild(activityText);
+    child.appendChild(dateText);
+
+    startCountdownForCard(child, date);
 }
 
 document.addEventListener("click", function (e) { //Event listener for childClass
@@ -82,40 +139,66 @@ document.addEventListener("click", function (e) { //Event listener for childClas
     if (pick.classList.contains("trashClass")){ //Deletes specific activities
         const p_Node = pick.parentNode; 
         p_Node.remove();
+        console.log(p_Node.dataset.index);
+        const index = p_Node.dataset.index;
+        myLeads.splice(index,1);
+        localStorage.setItem("myLeads", JSON.stringify(myLeads));
+
     }
-    if (pick.classList.contains("editClass")){ //Allows to edit text
-            document.querySelectorAll(".childClass").forEach(child => {
-                child.addEventListener("click", function(event){
-                    const clicked = event.currentTarget;
-                    const i = clicked.dataset.index;
-                    clicked.contentEditable = true;
-                    clicked.classList.add('editable');
-                    clicked.focus();
+    if (pick.classList.contains("editClass")) {
+        const clicked = pick.parentNode;
+        const activityText = clicked.querySelector(".activityText");
 
-                clicked.addEventListener("keydown", function(event){
-                    if(event.key == "Enter"){
-                        event.preventDefault();
-                        clicked.contentEditable = false;
-                        clicked.classList.remove('editable');
-                        clicked.blur();
-                    }
-                },{ once: true });
+        const i = clicked.dataset.index;
+    
+        activityText.contentEditable = true;
+        activityText.classList.add("editable");
+        activityText.focus();
+    
+        activityText.addEventListener("keydown", function(event){
+            if(event.key === "Enter"){
+                activityText.contentEditable = false;
+                event.preventDefault();
+                clicked.blur(); // triggers blur listener below
+            }
+        });
+    
+        activityText.addEventListener("blur", function () {
+            activityText.contentEditable = false;
+            activityText.classList.remove("editable");
+    
+            const newText = activityText.textContent.trim("Due: ");
+            myLeads[i].text = newText;
+            localStorage.setItem("myLeads", JSON.stringify(myLeads));
+        }, { once: true });
+    }
+    if (pick.classList.contains("dateClass")) {
+        const clicked = pick.parentNode;
+        const i = clicked.dataset.index;
+        const dateText = clicked.querySelector(".dueValue");
 
-                clicked.addEventListener("blur", function () {
-                    clicked.contentEditable = "false";
-                    clicked.classList.remove("editable");
-            
-                    const newText = clicked.textContent.trim();
-                    myLeads[i].text = newText;
-                    localStorage.setItem("myLeads", JSON.stringify(myLeads));
-                  }, { once: true });
-
-                })
-                
-            })
+        dateText.contentEditable = true;
+        dateText.classList.add("editable");
+        dateText.focus();
+    
+        dateText.addEventListener("keydown", function(event){
+            if(event.key === "Enter"){
+                dateText.contentEditable = false;
+                event.preventDefault();
+                clicked.blur(); // triggers blur listener below
+            }
+        });
+    
+        dateText.addEventListener("blur", function () {
+            dateText.contentEditable = false;
+            dateText.classList.remove("editable");
+    
+            const newDate = dateText.textContent.trim();
+            myLeads[i].due = newDate;
+            localStorage.setItem("myLeads", JSON.stringify(myLeads));
+        }, { once: true });
     }
 })
-
 
 const customMenu = document.getElementById('customMenu');
 let current = null;
@@ -164,6 +247,40 @@ menuOptions.forEach(option => {
         customMenu.style.display = 'none'; // hide menu after selection
     });
 });
+
+function endOfDayLocal(yyyy_mm_dd) {
+    const [y, m, d] = yyyy_mm_dd.split("-").map(Number);
+    return new Date(y, m - 1, d, 23, 59, 59, 999); // local time end of day
+}
+
+function formatRemaining(ms) {
+    if (ms <= 0) return "Past due";
+  
+    const totalSeconds = Math.floor(ms / 1000);
+    const days = Math.floor(totalSeconds / 86400);
+    const hours = Math.floor((totalSeconds % 86400) / 3600);
+    const mins = Math.floor((totalSeconds % 3600) / 60);
+    const secs = totalSeconds % 60;
+  
+    if (days > 0) return `${days}d ${hours}h ${mins}m`;
+    return `${hours}h ${mins}m ${secs}s`;
+  }
+
+  function startCountdownForCard(cardEl, dueDateStr) {
+    const dueValue = cardEl.querySelector(".dueValue"); // where countdown text goes
+    if (!dueValue) return;
+    const dueEnd = endOfDayLocal(dueDateStr);
+  
+    const tick = () => {
+      const msLeft = dueEnd - new Date();
+      dueValue.textContent = `${formatRemaining(msLeft)}`;
+    };
+  
+    tick(); 
+    cardEl._countdownId = setInterval(tick, 1000);
+  }
+  
+  
 
 
 

@@ -8,9 +8,15 @@
 </head>
 <body>
     <h1>Welcome to the To-Do List</h1>
-    <p id="error-msg" class="error-message">Please enter a valid activity</p> 
+    <p id="error-msg-act" class="error-message">Please enter a valid activity</p> 
+    <p id="error-msg-dat" class="error-message">Please enter a valid date</p> 
+    <p id="error-msg" class="error-message">Please enter a valid activity and date</p> 
     <div id = "new">
-        <input type ="text" id="input-el" name="inputField">
+        <div id = "inputs">
+            <p id="demo">helloooo</p>
+            <input type ="text" id="input-el" placeholder = "Enter an activity" name="inputField">
+            <input type ="date" id="date-el" placeholder = "Enter Due date" name="dateField">
+        </div>
         <div id = "buttons">
             <button id="save-btn" onclick = "save()">Add Activity</button>
             <button id="reset-btn" onclick = "reset()">Reset</button>
