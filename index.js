@@ -4,13 +4,20 @@ const inputEl = document.getElementById("input-el");
 const saver = document.getElementById("save-btn");
 const date = document.getElementById("date-el")
 const inputs = document.getElementById("inputs");
+const filter = document.getElementById("filter");
 
 const remain = document.getElementById("remaining");
 function rerender(){
     const saved = JSON.parse(localStorage.getItem("myLeads")) || [];
     myLeads = saved;
 
-    myLeads.sort((a, b) => endOfDayLocal(a.due) - endOfDayLocal(b.due));
+    if (filter.value === "Dates") {
+        myLeads.sort((a, b) => endOfDayLocal(a.due) - endOfDayLocal(b.due));
+      } else if (filter.value === "Status") {
+        const rank = { "Not Started": 0, "In Progress": 1, "Done": 2 };
+        myLeads.sort((a, b) => (rank[a.status] ?? 99) - (rank[b.status] ?? 99));
+      }
+      
 
     remain.textContent = myLeads.length + " Tasks left";
     parent.innerHTML = "";
@@ -27,6 +34,10 @@ function rerender(){
     }      
     localStorage.setItem("myLeads", JSON.stringify(myLeads));
 }
+filter.addEventListener("change", () => {
+    rerender();
+  });
+  
 
 inputs.addEventListener("keydown", function(event){
     if(event.key == "Enter"){
@@ -124,15 +135,21 @@ document.addEventListener("click", function (e) { //Event listener for childClas
     const pick = e.target;
 
     if (pick.classList.contains("trashClass")){ //Deletes specific activities
-        const p_Node = pick.parentNode; 
-        p_Node.remove();
-        const index = p_Node.dataset.index;
+        const p_Node = pick.closest(".childClass"); 
+        if(!p_Node) return;
+
+        const index = Number(p_Node.dataset.index);
+        
+
         myLeads.splice(index,1);
         localStorage.setItem("myLeads", JSON.stringify(myLeads));
+
+        rerender()
         remain.textContent = Number(myLeads.length) + " Tasks left";
 
     }
-    if (pick.classList.contains("editClass")) {
+
+    if (pick.classList.contains("editClass")) { //Edit activity
         const clicked = pick.parentNode;
         const activityText = clicked.querySelector(".activityText");
 
@@ -146,7 +163,7 @@ document.addEventListener("click", function (e) { //Event listener for childClas
             if(event.key === "Enter"){
                 activityText.contentEditable = false;
                 event.preventDefault();
-                clicked.blur(); // triggers blur listener below
+                clicked.blur(); 
             }
         });
     
@@ -159,7 +176,8 @@ document.addEventListener("click", function (e) { //Event listener for childClas
             localStorage.setItem("myLeads", JSON.stringify(myLeads));
         }, { once: true });
     }
-    if (pick.classList.contains("dateClass")) {
+
+    if (pick.classList.contains("dateClass")) { //Edit date
         const clicked = pick.parentNode;
         const i = clicked.dataset.index;
         const dateText = clicked.querySelector(".dueValue");
@@ -178,7 +196,7 @@ document.addEventListener("click", function (e) { //Event listener for childClas
             if(event.key === "Enter"){
                 dateText.contentEditable = false;
                 event.preventDefault();
-                dateText.blur(); // triggers blur listener below
+                dateText.blur(); 
             }
         });
     
@@ -242,6 +260,7 @@ menuOptions.forEach(option => {
 
         localStorage.setItem("myLeads", JSON.stringify(myLeads));
         customMenu.style.display = 'none'; // hide menu after selection
+        rerender();
     });
 });
 
