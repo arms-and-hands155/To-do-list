@@ -5,10 +5,15 @@ const saver = document.getElementById("save-btn");
 const date = document.getElementById("date-el")
 const inputs = document.getElementById("inputs");
 
-const leadsFromLocalStorage = JSON.parse(localStorage.getItem("myLeads"));
 
-if(leadsFromLocalStorage){ //Rendering the data and display from before the refresh
-    myLeads = leadsFromLocalStorage;
+function rerender(){
+    const saved = JSON.parse(localStorage.getItem("myLeads")) || [];
+    myLeads = saved;
+
+    myLeads.sort((a, b) => endOfDayLocal(a.due) - endOfDayLocal(b.due));
+    parent.innerHTML = "";
+
+    
     for (let i = 0; i < myLeads.length; i++) {
 
         render(myLeads[i].text, myLeads[i].due, i);
@@ -17,7 +22,8 @@ if(leadsFromLocalStorage){ //Rendering the data and display from before the refr
         if(myLeads[i].status === "Done"){divs[i].style.background = "#70DA25";}
         else if(myLeads[i].status === "In Progress"){divs[i].style.background = "#FFEA00";}
         else if(myLeads[i].status === "Not Started"){divs[i].style.background = "#EE1411";}
-      }      
+    }      
+    localStorage.setItem("myLeads", JSON.stringify(myLeads));
 }
 
 inputs.addEventListener("keydown", function(event){
@@ -36,7 +42,8 @@ function save(){
 
         myLeads.push(newActivity);
         localStorage.setItem("myLeads", JSON.stringify(myLeads))
-        render(inputEl.value, date.value, myLeads.length -1)
+        localStorage.setItem("myLeads", JSON.stringify(myLeads));
+        rerender();
         inputEl.value = ""
         date.value = ""
     }
@@ -131,6 +138,7 @@ function render(word, date, index) {
     child.appendChild(dateText);
 
     startCountdownForCard(child, date);
+
 }
 
 document.addEventListener("click", function (e) { //Event listener for childClass
@@ -139,7 +147,6 @@ document.addEventListener("click", function (e) { //Event listener for childClas
     if (pick.classList.contains("trashClass")){ //Deletes specific activities
         const p_Node = pick.parentNode; 
         p_Node.remove();
-        console.log(p_Node.dataset.index);
         const index = p_Node.dataset.index;
         myLeads.splice(index,1);
         localStorage.setItem("myLeads", JSON.stringify(myLeads));
@@ -248,13 +255,14 @@ menuOptions.forEach(option => {
     });
 });
 
+//Displaying a countdown
 function endOfDayLocal(yyyy_mm_dd) {
     const [y, m, d] = yyyy_mm_dd.split("-").map(Number);
     return new Date(y, m - 1, d, 23, 59, 59, 999); // local time end of day
 }
 
 function formatRemaining(ms) {
-    if (ms <= 0) return "Past due";
+    if (ms <= 0) {return "Past due";}
   
     const totalSeconds = Math.floor(ms / 1000);
     const days = Math.floor(totalSeconds / 86400);
@@ -270,17 +278,24 @@ function formatRemaining(ms) {
     const dueValue = cardEl.querySelector(".dueValue"); // where countdown text goes
     if (!dueValue) return;
     const dueEnd = endOfDayLocal(dueDateStr);
+    const i = Number(cardEl.dataset.index)
+    const obj = myLeads[i];
   
     const tick = () => {
       const msLeft = dueEnd - new Date();
       dueValue.textContent = `${formatRemaining(msLeft)}`;
+      if(msLeft <= 0){
+        dueValue.style.color = "white";
+        dueValue.style.fontWeight = "700";
+        dueValue.style.textDecoration = "underline";
+
+        dueValue.classList.add('late');
+    }
     };
-  
+    
     tick(); 
     cardEl._countdownId = setInterval(tick, 1000);
   }
   
-  
-
-
+  rerender();
 
