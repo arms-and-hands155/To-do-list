@@ -7,17 +7,21 @@ const inputs = document.getElementById("inputs");
 const filter = document.getElementById("filter");
 
 const remain = document.getElementById("remaining");
+let sortType = "Dates";
+let sortDir = -1; // 1 asc, -1 desc
+
+
+
 function rerender(){
     const saved = JSON.parse(localStorage.getItem("myLeads")) || [];
     myLeads = saved;
 
     if (filter.value === "Dates") {
-        myLeads.sort((a, b) => endOfDayLocal(a.due) - endOfDayLocal(b.due));
-      } else if (filter.value === "Status") {
+        myLeads.sort((a,b) => sortDir * (endOfDayLocal(a.due) - endOfDayLocal(b.due)));
+    } else if (filter.value === "Status") {
         const rank = { "Not Started": 0, "In Progress": 1, "Done": 2 };
-        myLeads.sort((a, b) => (rank[a.status] ?? 99) - (rank[b.status] ?? 99));
-      }
-      
+        myLeads.sort((a,b) => sortDir * ((rank[a.status] ?? 99) - (rank[b.status] ?? 99)));        
+    }        
 
     remain.textContent = myLeads.length + " Tasks left";
     parent.innerHTML = "";
@@ -38,7 +42,8 @@ filter.addEventListener("change", () => {
     rerender();
   });
   
-
+  
+  
 inputs.addEventListener("keydown", function(event){
     if(event.key == "Enter"){
         event.preventDefault();
@@ -321,3 +326,4 @@ function setInputDateToday(_id) {
 
 // Call the function when the page loads
 setInputDateToday("#date-el");
+  
